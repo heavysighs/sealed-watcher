@@ -64,10 +64,13 @@ class MainActivity : Activity() {
         val lastHeal = prefs.getLong(WatcherService.KEY_LAST_HEAL, 0L)
         val healText = if (lastHeal == 0L) "never" else
             DateFormat.getDateTimeInstance().format(Date(lastHeal))
+        val guardedId = prefs.getString(WatcherService.KEY_LAST_ID, null)
+            ?: "not seen yet (is Curbox installed?)"
         return buildString {
             appendLine("Sealed Watcher")
             appendLine()
             appendLine("Secure-settings permission granted: $granted")
+            appendLine("Guarded service: $guardedId")
             appendLine("Curbox accessibility service on: $targetOn")
             appendLine("Last restore: $healText")
             appendLine()

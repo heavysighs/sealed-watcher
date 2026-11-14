@@ -16,10 +16,12 @@ jobs:
               -alias sealedwatcher -storepass sealedwatcher -keypass sealedwatcher \
               -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Sealed Watcher"
           fi
-      - name: Build release APK
+      - name: Unit tests (service-list logic)
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew testReleaseUnitTest
+      - name: Build release APK
+        run: ./gradlew assembleRelease
       - uses: actions/upload-artifact@v4
         with:
           name: sealed-watcher-apk

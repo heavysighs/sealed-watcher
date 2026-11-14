@@ -24,15 +24,26 @@ instead of a general automation tool.
 - A foreground service registers a content observer on
   `enabled_accessibility_services` and `accessibility_enabled`, plus a
   20-second periodic re-check.
-- On any change, if Curbox's service is missing, it appends it back and
-  re-sets `accessibility_enabled` to 1. Curbox's service component is
-  discovered at runtime from the installed-accessibility-services list
-  (no class name hardcoded); the last seen id is cached in case Curbox is
-  temporarily absent.
+- **Restore:** if Curbox's service is missing from the list, it is appended
+  back and `accessibility_enabled` is re-set to 1.
+- **Revive:** if the service is on the list but not actually live (some
+  phones' battery managers kill the bound service while leaving the switch
+  on), the watcher toggles it off and back on — only after the dead state
+  has persisted for 60 seconds, and at most once every 5 minutes, so a
+  slow bind is never churned.
+- Curbox's service component is discovered live from the
+  installed-accessibility-services list (no class name hardcoded), so a
+  Curbox update that renames its service is followed automatically. The
+  watcher never writes a remembered id: a stale id could name a service
+  that no longer exists. Component names are compared in normalized form,
+  because the system writes them in full form (`pkg/pkg.Class`) while the
+  installed-services list may use the short form (`pkg/.Class`).
 - Writing the setting needs `WRITE_SECURE_SETTINGS` — not grantable from
   the phone UI. It is granted once on setup day via adb (below), survives
   reboots, and does not appear in the Settings permission pages.
 - Starts itself on boot (BOOT_COMPLETED receiver).
+- The list parsing/matching logic is covered by JVM unit tests, which run
+  in CI before every build.
 
 ## Setup day (operator steps)
 
